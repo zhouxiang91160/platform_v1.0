@@ -70,7 +70,9 @@ var param = {
 var api = {
 		list : {
 				'payment' : {type: 0, name: '支付接口接口'},
-				'payment-exec' : {type: 1, name: '|--支付', url: '/pay/payment', signIds:[], params: '{"channel":"17","outTradeNo":'+param.getOrderNo()+',"tradeFee":"0.01","subject":"第三方支付接口付费","body":"第三方支付接口付费-测试","overtime":"30","openId":"oVS6guPj-Wn0HBxp80W3Y_RybCP4"}'},
+				'payment-exec' : {type: 1, name: '|--支付', url: '/pay/payment', signIds:[], params: '{"channel":"10","outTradeNo":'+param.getOrderNo()+',"tradeFee":"0.01","subject":"第三方支付接口付费","body":"第三方支付接口付费-测试","overtime":"30","openId":"oVS6guPj-Wn0HBxp80W3Y_RybCP4"}'},
+				'payment-getResult' : {type: 1, name: '|--订单结果查询', url: '/pay/getresult', signIds:[], params: '{"channel":"10","out_trade_no":"86515877","trade_no":"2016020121001004400001603984","trade_time":""}'},
+				'payment-refundment' : {type: 1, name: '|--订单退款', url: '/pay/refundment', signIds:[], params: '{"channel":"10","out_trade_no":"86515877","trade_no":"2016020121001004400001603984","total_fee":"0.01","trade_time":"","trade_pwd":""}'},
 	
 		},
         init : function() {

@@ -120,4 +120,21 @@ public class AlipayCore {
     		return "";
     	}
     }
+    
+    /** 
+     * 把数组所有元素按照固定参数排序，以“参数=参数值”的模式用“&”字符拼接成字符串
+     * @param params 需要参与字符拼接的参数组
+     * @return 拼接后字符串
+     */
+    public static String createLinkStringNoSort(Map<String, String> params) {
+    	
+    	//手机网站支付MD5签名固定参数排序，顺序参照文档说明
+    	StringBuilder gotoSign_params = new StringBuilder();
+    	gotoSign_params.append("service="+params.get("service"));
+    	gotoSign_params.append("&v="+params.get("v"));
+    	gotoSign_params.append("&sec_id="+params.get("sec_id"));
+    	gotoSign_params.append("&notify_data="+params.get("notify_data"));
+    	
+    	return gotoSign_params.toString();
+    }
 }

@@ -5,10 +5,10 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import sivl.platform.common.model.ResultModel;
-import sivl.platform.common.utils.StringUtil;
 import sivl.platform.pay.constant.ResultCons;
 import sivl.platform.pay.model.PaymentsModel;
-import sivl.platform.pay.sdk.alipay.common.config.AlipayConfig;
+import sivl.platform.pay.model.RefundmentsModel;
+import sivl.platform.pay.sdk.alipay.common.validate.ValidateAlipay;
 import sivl.platform.pay.sdk.alipay.web.AlipayWebUtil;
 import sivl.platform.pay.service.PaymentService;
 
@@ -22,53 +22,27 @@ public class AlipayWebServiceImpl implements PaymentService {
 		ResultModel<Object> result = new ResultModel<Object>();
 		// 参数不为空验证
 		PaymentsModel payment = new PaymentsModel(params);
-		result = validatePayment(payment);
-		if(result.getCode().equals(ResultCons.SUCCESS)){
-			//调起支付支付
+		result = ValidateAlipay.validatePayment(payment);
+		if (result.getCode().equals(ResultCons.SUCCESS)) {
+			// 调起支付支付
 			result = AlipayWebUtil.payment(payment);
 		}
 		return result;
 	}
 
 	/**
-	 * 支付参数校验
-	 * 
-	 * @param payment
-	 *            支付对象
-	 * @return result
+	 * 退款接口
 	 */
-	private ResultModel<Object> validatePayment(PaymentsModel payment) {
+	public ResultModel<Object> refundment(Map<String, Object> params) {
 		ResultModel<Object> result = new ResultModel<Object>();
-		if (StringUtil.isEmpty(payment.getOutTradeNo())) {
-			result.setMsg("商户订单号不能为空");
-			result.setCode(ResultCons.FAIL);
-		}else if (payment.getTradeFee()== null) {
-			result.setMsg("订单金额不能为空");
-			result.setCode(ResultCons.FAIL);
-		}else if(payment.getTradeFee() <= 0){
-			result.setMsg("订单金额不能小于0");
-			result.setCode(ResultCons.FAIL);
-		}else{
-			result.setMsg(ResultCons.SUCCESS_MSG);
-			result.setCode(ResultCons.SUCCESS);
-		}
-		String body = payment.getBody();
-		if(StringUtil.isNotEmpty(body)
-		   && body.length()>20){
-			body = body.substring(0, 20).concat("...");
-			payment.setBody(body);
-		}
-		String overTime = payment.getOvertime();
-		if(StringUtil.isEmpty(overTime)){
-			payment.setOvertime(AlipayConfig.it_b_pay);
-		}else{
-			payment.setOvertime(overTime+"m");
+		// 参数不为空验证
+		RefundmentsModel refundment = new RefundmentsModel(params);
+		result = ValidateAlipay.validateRefundment(refundment);
+		if (result.getCode().equals(ResultCons.SUCCESS)) {
+			// 调起支付支付
+			result = AlipayWebUtil.refundment(refundment);
 		}
 		return result;
-	}
-
-	public ResultModel<Object> refundment(Map<String, Object> params) {
-		return null;
 	}
 
 	public ResultModel<Object> withdrawal(Map<String, Object> params) {
@@ -76,7 +50,15 @@ public class AlipayWebServiceImpl implements PaymentService {
 	}
 
 	public ResultModel<Object> getResult(Map<String, Object> params) {
-		return null;
+		ResultModel<Object> result = new ResultModel<Object>();
+		// 参数验证
+		result = ValidateAlipay.validateQuery(params);
+		if (result.getCode().equals(ResultCons.SUCCESS)) {
+			Map<String, Object> map = result.getExt();
+			// 调起支付支付
+			result = AlipayWebUtil.query(map);
+		}
+		return result;
 	}
 
 	public ResultModel<Object> checking(Map<String, Object> params) {

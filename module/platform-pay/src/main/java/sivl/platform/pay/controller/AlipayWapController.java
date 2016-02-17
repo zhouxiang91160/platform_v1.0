@@ -17,13 +17,12 @@ import sivl.platform.common.utils.MapUtil;
 import sivl.platform.pay.constant.ResultCons;
 import sivl.platform.pay.model.PaymentsModel;
 import sivl.platform.pay.sdk.alipay.wap.AlipayWapUtil;
-import sivl.platform.pay.sdk.alipay.web.AlipayWebUtil;
 
 @Controller
-@RequestMapping("/alipay/web")
+@RequestMapping("/alipay/wap")
 public class AlipayWapController extends PaymentController {
 
-	private static String className = "sivl.platform.pay.controller.AlipayWebController";
+	private static String className = "sivl.platform.pay.controller.AlipayWapController";
 
 	/**
 	 * 支付宝支付前台通知
@@ -39,11 +38,11 @@ public class AlipayWapController extends PaymentController {
 		LogUtil.netLegalLog(
 				JSONUtil.obj2json(new NetLogModel(request)
 						.buildClassName(className)
-						.buildInterfaceName("/alipay/web/return_payment")
-						.buildMsg("支付宝支付前台通知")), AlipayWapController.class);
+						.buildInterfaceName("/alipay/wap/return_payment")
+						.buildMsg("支付宝wap支付前台通知")), AlipayWapController.class);
 		PaymentsModel payment = new PaymentsModel();
 		payment.setRequest(request);
-		ResultModel<Object> result = AlipayWebUtil.paymentVerify(payment);
+		ResultModel<Object> result = AlipayWapUtil.paymentFrontVerify(payment);
 		if (result.getCode().equals(ResultCons.SUCCESS)) {
 			Map<String, Object> rs = result.getExt();
 			String trade_status = MapUtil.getString(rs, "trade_status");
@@ -52,12 +51,28 @@ public class AlipayWapController extends PaymentController {
 							.equals(ResultCons.AlipayCons.TRADE_FINISHED)) {
 				// 付款成功，商户逻辑处理
 				System.out.println("付款成功，商户逻辑处理:" + JSONUtil.obj2json(rs));
+				String outTradeNo = MapUtil.getString(rs, "out_trade_no");
+				String tradeNo = MapUtil.getString(rs, "trade_no");
+				String tradeFee = MapUtil.getString(rs, "total_fee");
+				String tradeStatus = MapUtil.getString(rs, "trade_status");
+				String buyerEmail = MapUtil.getString(rs, "buyer_email");
+				String gmtPayment = MapUtil.getString(rs, "gmt_payment");
 				writerJson(response, "验证成功<br />");
 			} else {
 				// 付款失败，商户逻辑处理
 				System.out.println("付款失败，商户逻辑处理:" + JSONUtil.obj2json(rs));
 				writerJson(response, "验证失败");
 			}
+		} else {
+			// 记录日志
+			LogUtil.netLegalLog(
+					JSONUtil.obj2json(new NetLogModel(request)
+							.buildClassName(className)
+							.buildInterfaceName("/alipay/wap/return_payment")
+							.buildMsg("支付宝wap支付前台通知")
+							.buildParame(JSONUtil.obj2json(result))),
+					AlipayWapController.class);
+			writerJson(response, "支付失败：" + result.getMsg());
 		}
 	}
 
@@ -75,11 +90,11 @@ public class AlipayWapController extends PaymentController {
 		LogUtil.netLegalLog(
 				JSONUtil.obj2json(new NetLogModel(request)
 						.buildClassName(className)
-						.buildInterfaceName("/alipay/web/notify_payment")
-						.buildMsg("支付宝支付后台通知")), AlipayWapController.class);
+						.buildInterfaceName("/alipay/wap/notify_payment")
+						.buildMsg("支付宝wap支付后台通知")), AlipayWapController.class);
 		PaymentsModel payment = new PaymentsModel();
 		payment.setRequest(request);
-		ResultModel<Object> result = AlipayWebUtil.paymentVerify(payment);
+		ResultModel<Object> result = AlipayWapUtil.paymentNotifyVerify(payment);
 		if (result.getCode().equals(ResultCons.SUCCESS)) {
 			Map<String, Object> rs = result.getExt();
 			String trade_status = MapUtil.getString(rs, "trade_status");
@@ -88,6 +103,12 @@ public class AlipayWapController extends PaymentController {
 							.equals(ResultCons.AlipayCons.TRADE_FINISHED)) {
 				// 付款成功，商户逻辑处理
 				System.out.println("付款成功，商户逻辑处理:" + JSONUtil.obj2json(rs));
+				String outTradeNo = MapUtil.getString(rs, "out_trade_no");
+				String tradeNo = MapUtil.getString(rs, "trade_no");
+				String tradeFee = MapUtil.getString(rs, "total_fee");
+				String tradeStatus = MapUtil.getString(rs, "trade_status");
+				String buyerEmail = MapUtil.getString(rs, "buyer_email");
+				String gmtPayment = MapUtil.getString(rs, "gmt_payment");
 				writerJson(response, "验证成功<br />");
 			} else {
 				// 付款失败，商户逻辑处理

@@ -96,13 +96,14 @@ public class PaymentController extends BaseController {
 		LogUtil.netLegalLog(
 				JSONUtil.obj2json(new NetLogModel(request)
 						.buildClassName(className)
-						.buildInterfaceName("/token_ck/refundment")
-						.buildMsg("退款")), PaymentController.class);
+						.buildInterfaceName("/pay/refundment").buildMsg("发起退款")
+						.buildParame(params)), PaymentController.class);
 		Map<String, Object> maps = JSONUtil.json2map(params);
 		Integer code = MapUtil.getInt(maps, "channel");
 		PaymentService paymentService = openService.getInstance(code);
 		ResultModel<Object> result = new ResultModel<Object>();
 		result = paymentService.refundment(maps);
+		result.setExt(maps);
 		writerJson(response, result);
 	}
 
@@ -111,25 +112,26 @@ public class PaymentController extends BaseController {
 	 * 
 	 * @param request
 	 * @param params
-	 *            json格式字符串（商户订单号，交易流水号）
+	 *            json格式字符串（商户订单号，交易流水号，交易时间【银联】）
 	 * @return
 	 */
-	@RequestMapping(value = "/token_ck/getresult", method = {
-			RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/getresult", method = { RequestMethod.GET,
+			RequestMethod.POST })
 	public void getResult(HttpServletResponse response,
 			HttpServletRequest request,
-			@RequestParam(required = false) String params) {
+			@RequestParam(required = true) String params) {
 		// 记录日志
 		LogUtil.netLegalLog(
 				JSONUtil.obj2json(new NetLogModel(request)
 						.buildClassName(className)
-						.buildInterfaceName("/token_ck/getresult")
+						.buildInterfaceName("/pay/getresult")
 						.buildMsg("获取支付结果")), PaymentController.class);
 		Map<String, Object> maps = JSONUtil.json2map(params);
 		Integer code = MapUtil.getInt(maps, "channel");
 		PaymentService paymentService = openService.getInstance(code);
 		ResultModel<Object> result = new ResultModel<Object>();
 		result = paymentService.getResult(maps);
+		// TODO 逻辑处理
 		writerJson(response, result);
 	}
 
@@ -140,17 +142,16 @@ public class PaymentController extends BaseController {
 	 * @param request
 	 * @param params
 	 */
-	@RequestMapping(value = "/token_ck/cash", method = { RequestMethod.GET,
+	@RequestMapping(value = "/cash", method = { RequestMethod.GET,
 			RequestMethod.POST })
 	public void withdrawal(HttpServletResponse response,
 			HttpServletRequest request,
 			@RequestParam(required = false) String params) {
 		// 记录日志
-		LogUtil.netLegalLog(
-				JSONUtil.obj2json(new NetLogModel(request)
-						.buildClassName(className)
-						.buildInterfaceName("/token_ck/withdrawal")
-						.buildMsg("提现接口")), PaymentController.class);
+		LogUtil.netLegalLog(JSONUtil.obj2json(new NetLogModel(request)
+				.buildClassName(className)
+				.buildInterfaceName("/pay/withdrawal").buildMsg("提现接口")),
+				PaymentController.class);
 		Map<String, Object> maps = JSONUtil.json2map(params);
 		Integer code = MapUtil.getInt(maps, "channel");
 		PaymentService paymentService = openService.getInstance(code);

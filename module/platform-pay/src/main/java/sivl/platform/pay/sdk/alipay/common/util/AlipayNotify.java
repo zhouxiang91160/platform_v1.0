@@ -8,6 +8,7 @@ import java.util.Map;
 
 import sivl.platform.pay.sdk.alipay.common.config.AlipayConfig;
 import sivl.platform.pay.sdk.alipay.common.sign.MD5;
+import sivl.platform.pay.sdk.alipay.common.sign.RSA;
 
 
 /* *
@@ -121,5 +122,15 @@ public class AlipayNotify {
         }
 
         return inputLine;
+    }
+    
+    /**
+     * 解密
+     * @param inputPara 要解密数据
+     * @return 解密后结果
+     */
+    public static Map<String, String> decrypt(Map<String, String> inputPara) throws Exception {
+    	inputPara.put("notify_data", RSA.decrypt(inputPara.get("notify_data"), AlipayConfig.private_key, AlipayConfig.input_charset));
+    	return inputPara;
     }
 }
